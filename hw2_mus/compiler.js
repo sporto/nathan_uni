@@ -5,7 +5,11 @@ var compile = function(musexpr) {
 	var arr = [];
 
 	function getMIDI(chord){
+		//return chord;
 		return notes[chord];
+//		var parts = chord.split();
+//		var letterPitch = {c:0,d:2,e:3,f:4,g:5,a:6,b:11}
+//		12 + 12 * parts[1] + letterPitch[parts[0]];
 	}
 
 	function add(node, start){
@@ -23,8 +27,15 @@ var compile = function(musexpr) {
 			return node.duration;
 		}
 		
+		if(node.tag==='repeat'){
+			for(var a=0; a<node.count; a++){
+				dur += add(node.section, start+dur);
+			}
+			return dur;
+		}
+		
 		if(node.left) leftDur = add(node.left, start);
-		if(node.right) rightDur = add(node.right, seq? leftDur:start);
+		if(node.right) rightDur = add(node.right, seq? start+leftDur:start);
 		
 		if(seq){
 			dur=leftDur+rightDur;
@@ -47,9 +58,11 @@ var melody_mus =
          left: { tag: 'note', pitch: 'A4', dur: 250 },
          right: { tag: 'note', pitch: 'B4', dur: 250 } },
       right:
-       { tag: 'seq',
+       { tag: 'par',
          left: { tag: 'note', pitch: 'C4', dur: 500 },
-         right: { tag: 'note', pitch: 'D4', dur: 500 } } };
+         right: { tag: 'repeat',
+				  section: { tag: 'note', pitch: 'C4', dur: 250 },
+				  count: 3 } } };
 
 console.log(melody_mus);
 console.log(compile(melody_mus));
