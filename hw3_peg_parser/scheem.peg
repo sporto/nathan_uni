@@ -1,0 +1,28 @@
+start =
+	expression
+
+expression =
+	atom
+	/
+	open first:expression rest:sp_exp* close  
+	{ return [first].concat(rest) }
+
+sp_exp = 
+	sp left:expression
+	{ return left }
+
+open = 
+	"("
+
+close = 
+	")"
+
+sp =
+	" "
+    
+validchar
+	= [0-9a-zA-Z_?!+\-=@#$%^&*/.]
+
+atom =
+	chars:validchar+
+	{ return chars.join(""); }
