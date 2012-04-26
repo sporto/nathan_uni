@@ -17,3 +17,10 @@ var parsed2 = ["*", "n", ["factorial", ["-", "n", "1"]]];
 
 assert.deepEqual( parser.parse(input1), parsed1 );
 assert.deepEqual( parser.parse(input2), parsed2 );
+
+//whitespaces
+var input3 = "(+   1  ( *  x  3) )";
+var input4 = "(*   n ( factorial     ( - n    1))   )";
+assert.deepEqual( parser.parse(input3), parsed1 );
+assert.deepEqual( parser.parse(input4), parsed2 );
+

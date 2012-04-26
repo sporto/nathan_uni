@@ -4,11 +4,11 @@ start =
 expression =
 	atom
 	/
-	open first:expression rest:sp_exp* close  
+	open optional_space first:expression rest:space_and_expression* optional_space close  
 	{ return [first].concat(rest) }
 
-sp_exp = 
-	sp left:expression
+space_and_expression = 
+	space optional_space left:expression
 	{ return left }
 
 open = 
@@ -17,9 +17,12 @@ open =
 close = 
 	")"
 
-sp =
+optional_space =
+	space*
+
+space =
 	" "
-    
+
 validchar
 	= [0-9a-zA-Z_?!+\-=@#$%^&*/.]
 
