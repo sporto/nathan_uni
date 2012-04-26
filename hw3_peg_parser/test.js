@@ -19,6 +19,7 @@ var code06 = fs.readFileSync('06.scheem', 'utf-8');
 
 var expected01 = ["+", "1", ["*", "x", "3"]];
 var expected02 = ["*", "n", ["factorial", ["-", "n", "1"]]];
+var expected03 = ["quote", ["1", "2", "3"] ];
 
 assert.deepEqual( parser.parse(code01), expected01 );
 assert.deepEqual( parser.parse(code02), expected02 );
