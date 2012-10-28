@@ -1,0 +1,41 @@
+start =
+	expression
+
+expression =
+	atom
+	/
+	quote right:expression
+	{ return ["quote", right]}
+	/
+	open optional_whitespace first:expression rest:whitespace_and_expression* optional_whitespace close  
+	{ return [first].concat(rest) }
+
+whitespace_and_expression = 
+	whitespace optional_whitespace left:expression
+	{ return left }
+
+quote = 
+	"'"
+
+open = 
+	"("
+
+close = 
+	")"
+
+optional_whitespace =
+	whitespace*
+
+whitespace =
+	" "
+	/
+	"\n"
+	/
+	"\t"
+
+validchar
+	= [0-9a-zA-Z_?!+\-=@#$%^&*/.]
+
+atom =
+	chars:validchar+
+	{ return chars.join(""); }
