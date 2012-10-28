@@ -29,6 +29,9 @@ var evalScheem = function (expr, env) {
     		env[expr[1]] = evalScheem(expr[2], env);
         return 0;
       case 'set!':
+      	if (env[expr[1]] == null) {
+    			throw new Error(expr[1] + ' is not defined');
+    		}
     		env[expr[1]] = evalScheem(expr[2], env);
     		return 0;
 			case 'begin':
@@ -100,12 +103,17 @@ suite('define', function () {
 
 suite('set!', function () {
 	test('a number', function () {
-		env = {};
+		env = {a: 0};
 		evalScheem(['set!', 'a', 1], env)
 		assert.deepEqual(
 			env,
 			{a: 1}
 		);
+	});
+	test('not set', function () {
+		assert.throws(function () {
+        evalScheem(['set!', 'b', 3], {});
+    });
 	});
 });
 
@@ -147,6 +155,7 @@ suite('quote', function() {
         );
     });
 });
+
 suite('add', function() {
     test('two numbers', function() {
         assert.deepEqual(
@@ -154,19 +163,19 @@ suite('add', function() {
             8
         );
     });
-    test('a number and an expression', function() {
-        assert.deepEqual(
-            evalScheem(['+', 3, ['+', 2, 2]], {}),
-            7
-        );
+	test('a number and an expression', function() {
+	    assert.deepEqual(
+	        evalScheem(['+', 3, ['+', 2, 2]], {}),
+	        7
+	    );
+	});
+	test('a dog and a cat', function() {
+    assert.throws(function () {
+        evalScheem(['+', 'dog', 'cat'], {});
     });
-    // test('a dog and a cat', function() {
-    //     assert.deepEqual(
-    //         evalScheem(['+', 'dog', 'cat'], {}),
-    //         42
-    //     );
-    // });
+	});
 });
+
 suite('=', function() {
 	test('numbers', function () {
 		res = evalScheem(['=', 3, 3]);
