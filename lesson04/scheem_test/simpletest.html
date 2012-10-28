@@ -18,6 +18,7 @@ var assert = chai.assert;
 
 // A half-baked implementation of evalScheem
 var evalScheem = function (expr, env) {
+	var one, two;
     // Numbers evaluate to themselves
     if (typeof expr === 'number') {
         return expr;
@@ -36,11 +37,41 @@ var evalScheem = function (expr, env) {
           res = evalScheem(expr[a], env);
         }
         return res;
+      case '<':
+        var res =
+            (evalScheem(expr[1], env) <
+             evalScheem(expr[2], env));
+        if (res) return '#t';
+        return '#f';
+       case '=':
+            var eq =
+                (evalScheem(expr[1], env) ===
+                 evalScheem(expr[2], env));
+            if (eq) return '#t';
+            return '#f';
       case '+':
             return evalScheem(expr[1], env) 	+
                    evalScheem(expr[2], env);
+      case 'cons':
+            one = evalScheem(expr[1], env);
+            two = evalScheem(expr[2], env);
+            return [one].concat(two);
+        case 'car':
+            one = evalScheem(expr[1], env);
+            return one[0];
+        case 'cdr':
+            one = evalScheem(expr[1], env);
+            one.shift();
+            return one;
         case 'quote':
             return expr[1];
+        case 'if':
+            if (evalScheem(expr[1]) === '#t') {
+              return evalScheem(expr[2], env);   
+            } else {
+              return evalScheem(expr[3], env);
+            }
+
     }
 };
 
@@ -129,24 +160,102 @@ suite('add', function() {
             7
         );
     });
-    test('a dog and a cat', function() {
-        assert.deepEqual(
-            evalScheem(['+', 'dog', 'cat'], {}),
-            42
-        );
-    });
+    // test('a dog and a cat', function() {
+    //     assert.deepEqual(
+    //         evalScheem(['+', 'dog', 'cat'], {}),
+    //         42
+    //     );
+    // });
 });
-suite('=')
+suite('=', function() {
+	test('numbers', function () {
+		res = evalScheem(['=', 3, 3]);
+		assert.deepEqual(
+			res,
+			'#t'
+		);
+	});
+	test('numbers dif', function () {
+		res = evalScheem(['=', 4, 3]);
+		assert.deepEqual(
+			res,
+			'#f'
+		);
+	});
+});
 
-suite('<')
+suite('<', function () {
+	test('numbers', function () {
+		res = evalScheem(['<', 2, 3]);
+		assert.deepEqual(
+			res,
+			'#t'
+		);
+	});
+	test('numbers =', function () {
+		res = evalScheem(['<', 2, 2]);
+		assert.deepEqual(
+			res,
+			'#f'
+		);
+	});
+	test('numbers >', function () {
+		res = evalScheem(['<', 4, 3]);
+		assert.deepEqual(
+			res,
+			'#f'
+		);
+	});
+});
 
-suite('cons')
+suite('cons', function () {
+	test('adds', function () {
+		res = evalScheem(['cons', 2, ['quote', [3, 4]]]);
+		assert.deepEqual(
+			res,
+			[2,3,4]
+		);
+	});
+});
 
-suite('car')
+suite('car', function () {
+	test('returns the first element', function () {
+		res = evalScheem(['car', ['quote', [3, 4, 5]]]);
+		assert.deepEqual(
+			res,
+			3
+		);
+	});
+});
 
-suite('cdr')
+suite('cdr', function () {
+	test('returns the rest', function () {
+		res = evalScheem(['cdr', ['quote', [3, 4, 5]]]);
+		assert.deepEqual(
+			res,
+			[4, 5]
+		);
+	});
+});
 
-suite('if')
+suite('if', function () {
+	test('evals the first if true', function () {
+		env = {};
+		res = evalScheem(['if', ['=', 1, 1], ['define', 'x', 8], ['define', 'y', 9]], env);
+		assert.deepEqual(
+			env,
+			{x: 8}
+		);
+	});
+	test('evals the first if true', function () {
+		env = {};
+		res = evalScheem(['if', ['=', 1, 2], ['define', 'x', 8], ['define', 'y', 9]], env);
+		assert.deepEqual(
+			env,
+			{y: 9}
+		);
+	});
+});
 
   </script>
   <script>
